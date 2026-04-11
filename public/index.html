@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>段落大意之凝聚</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--b:#3b82f6;--d:#1e40af;--l:#eff6ff;--y:#fbbf24;--g:#22c55e;--r:12px;--red:#ef4444}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f4f8;min-height:100vh;color:#333;overflow-x:hidden}
+.page{display:none;min-height:100vh;flex-direction:column}.page.on{display:flex}
+.home{background:linear-gradient(135deg,#1e40af,#3b82f6 40%,#60a5fa);position:relative;overflow:hidden}
+.home::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:rgba(255,255,255,.06);border-radius:50%}
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;position:relative;z-index:1}
+.logo{width:90px;height:90px;background:rgba(255,255,255,.2);border-radius:22px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.3)}
+.logo svg{width:50px;height:50px;fill:#fff}
+.title{font-size:26px;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:12px}
+.subtitle{font-size:14px;color:rgba(255,255,255,.7);margin-bottom:36px}
+.actions{display:flex;gap:28px;margin-bottom:40px}
+.act{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:transform .15s}
+.act:active{transform:scale(.93)}
+.act .icon{width:60px;height:60px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.25);transition:background .2s}
+.act .icon svg{width:28px;height:28px;fill:#fff}
+.act span{font-size:13px;color:rgba(255,255,255,.9)}
+.info{background:rgba(255,255,255,.15);backdrop-filter:blur(12px);border-radius:var(--r);padding:20px 24px;margin-bottom:36px;border:1px solid rgba(255,255,255,.2);max-width:360px;width:100%}
+.info h3{font-size:15px;color:#fff;font-weight:600;margin-bottom:10px}
+.info p{font-size:13px;color:rgba(255,255,255,.8);line-height:1.7}
+.start-btn{display:flex;align-items:center;gap:8px;background:#fff;color:var(--d);border:none;padding:14px 40px;border-radius:50px;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.15);transition:transform .15s,box-shadow .15s}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.start-btn svg{width:22px;height:22px;fill:var(--d)}
+.workspace{background:#f8fafc}
+.wk-header{background:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);position:sticky;top:0;z-index:10}
+.back-btn{background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;border-radius:8px;transition:background .15s}
+.back-btn:hover{background:#e2e8f0}
+.back-btn svg{width:22px;height:22px;fill:#334155}
+.wk-header h1{font-size:18px;font-weight:600;color:#1e293b;letter-spacing:1px}
+.wk-body{flex:1;display:flex;flex-direction:column;padding:20px;gap:16px}
+.mode-tabs{display:flex;gap:6px;background:#fff;border-radius:10px;padding:4px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.mode-tab{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;background:none;color:#64748b;transition:all .2s}
+.mode-tab.on{background:var(--l);color:var(--b)}
+.text-area{flex:1;min-height:200px;background:#fff;border-radius:var(--r);border:2px solid #e2e8f0;padding:16px;resize:none;outline:none;font-size:15px;line-height:1.8;font-family:inherit;transition:border-color .2s}
+.text-area:focus{border-color:var(--b)}
+.text-area::placeholder{color:#94a3b8}
+.upload-area{background:#fff;border-radius:var(--r);border:2px dashed #cbd5e1;padding:32px 24px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-area:hover{border-color:var(--b);background:#fafbff}
+.upload-area.dragover{border-color:var(--b);background:var(--l);transform:scale(1.01)}
+.upload-area.done{border-color:var(--g);background:#f0fdf4}
+.upload-area svg{width:40px;height:40px;fill:#94a3b8;margin-bottom:10px}
+.upload-area.done svg{fill:var(--g)}
+.upload-area p{font-size:14px;color:#64748b}
+.upload-area .file-name{font-size:13px;color:var(--g);font-weight:500;margin-top:6px}
+.upload-area .file-hint{font-size:12px;color:#94a3b8;margin-top:4px}
+.upload-area.error{border-color:var(--red);background:#fef2f2}
+.upload-area.error svg{fill:var(--red)}
+.bottom-bar{display:flex;align-items:center;gap:10px;padding:12px 0}
+.input-row{flex:1;display:flex;gap:8px}
+.input-row input{flex:1;border:1px solid #e2e8f0;border-radius:10px;padding:10px 16px;font-size:15px;outline:none;font-family:inherit;transition:border-color .2s}
+.input-row input:focus{border-color:var(--b)}
+.send-btn{background:var(--b);border:none;border-radius:10px;padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s}
+.send-btn:hover{background:var(--d)}
+.send-btn:active{transform:scale(.95)}
+.send-btn:disabled{background:#94a3b8;cursor:not-allowed}
+.send-btn svg{width:22px;height:22px;fill:#fff}
+.result-page{background:#f8fafc}
+.rs-header{background:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);position:sticky;top:0;z-index:10}
+.rs-header h1{font-size:18px;font-weight:600;color:#1e293b;letter-spacing:1px}
+.rs-body{flex:1;padding:20px;display:flex;flex-direction:column}
+.output{flex:1;background:#fff;border-radius:var(--r);padding:20px;font-size:15px;line-height:1.8;color:#334155;border:1px solid #e2e8f0;overflow-y:auto;min-height:300px;white-space:pre-wrap;word-break:break-word}
+.output.empty{display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px}
+.rs-actions{display:flex;gap:10px;margin-top:16px;padding-bottom:20px}
+.rs-btn{flex:1;padding:14px;border-radius:10px;border:none;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.rs-btn.primary{background:var(--b);color:#fff}
+.rs-btn.primary:hover{background:var(--d)}
+.rs-btn.secondary{background:#fff;color:#64748b;border:1px solid #e2e8f0}
+.rs-btn.secondary:hover{background:#f8fafc}
+.rs-btn svg{width:18px;height:18px}
+.rs-btn.primary svg{fill:#fff}
+.rs-btn.secondary svg{fill:#64748b}
+.loading{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.loading.show{display:flex}
+.loading-box{background:#fff;border-radius:16px;padding:40px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.2);max-width:300px}
+.spinner{width:48px;height:48px;border:4px solid #e2e8f0;border-top-color:var(--b);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box p{font-size:15px;color:#64748b;margin-bottom:8px}
+.loading-box .tip{font-size:12px;color:#94a3b8}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:#1e293b;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:200;transition:transform .3s;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{background:var(--red)}
+.char-count{font-size:12px;color:#94a3b8;text-align:right;padding:4px 0}
+.hidden-input{display:none}
+@media(min-width:768px){
+  .hero{padding:60px 40px}
+  .title{font-size:32px}
+  .wk-body,.rs-body{max-width:720px;margin:0 auto;width:100%}
+}
+</style>
+</head>
+<body>
+<div id="homePage" class="page home on">
+  <div class="hero">
+    <div class="logo"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M8 12h8v2H8zm0 4h5v2H8z"/></svg></div>
+    <h1 class="title">段落大意之凝聚</h1>
+    <p class="subtitle">智能文本分析 · 一键提炼要点</p>
+    <div class="actions">
+      <div class="act" onclick="goWork('file')"><div class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6zm2-6h8v2H8zm0-3h8v2H8z"/></svg></div><span>文件</span></div>
+      <div class="act" onclick="goWork('image')"><div class="icon"><svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg></div><span>照片</span></div>
+      <div class="act" onclick="goWork('text')"><div class="icon"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></div><span>文字</span></div>
+    </div>
+    <div class="info"><h3>📌 功能简介</h3><p>「段落大意之凝聚」能对您上传的图片、文字及各类文件进行智能分析，快速提炼核心要点、总结段落大意。支持 txt/docx/pdf/xlsx 等多种格式。</p></div>
+    <button class="start-btn" onclick="goWork('text')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>立即体验</button>
+  </div>
+</div>
+<div id="workPage" class="page workspace">
+  <div class="wk-header">
+    <button class="back-btn" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+    <h1>段落大意之凝聚</h1>
+  </div>
+  <div class="wk-body">
+    <div class="mode-tabs">
+      <button class="mode-tab" data-mode="file" onclick="switchMode('file')">📄 文件</button>
+      <button class="mode-tab" data-mode="image" onclick="switchMode('image')">🖼️ 图片</button>
+      <button class="mode-tab on" data-mode="text" onclick="switchMode('text')">✏️ 文字</button>
+    </div>
+    <div id="textPanel">
+      <textarea id="textInput" class="text-area" placeholder="请输入或粘贴需要总结的文本内容…" oninput="updateCharCount()"></textarea>
+      <div class="char-count" id="charCount">0 字</div>
+    </div>
+    <div id="filePanel" style="display:none">
+      <div id="fileDrop" class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+        <p id="fileHint">点击或拖拽文件上传</p>
+        <p id="fileName" class="file-name" style="display:none"></p>
+        <p class="file-hint">支持 txt/docx/pdf/xlsx/csv/json/md</p>
+      </div>
+      <input type="file" id="fileInput" class="hidden-input" accept=".txt,.docx,.pdf,.xlsx,.xls,.csv,.json,.md,.log,.js,.py,.html,.css,.xml" onchange="onFileSelect(this)">
+    </div>
+    <div id="imagePanel" style="display:none">
+      <div id="imageDrop" class="upload-area" onclick="document.getElementById('imageInput').click()">
+        <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        <p id="imageHint">点击或拖拽图片上传</p>
+        <p id="imageFileName" class="file-name" style="display:none"></p>
+        <p class="file-hint">支持 jpg/png/gif/webp，自动压缩大图</p>
+      </div>
+      <input type="file" id="imageInput" class="hidden-input" accept="image/*" onchange="onImageSelect(this)">
+    </div>
+    <div class="bottom-bar">
+      <div class="input-row">
+        <input type="text" id="extraInput" placeholder="补充说明（可选）…" onkeydown="if(event.key==='Enter')doSubmit()">
+        <button class="send-btn" id="sendBtn" onclick="doSubmit()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="resultPage" class="page result-page">
+  <div class="rs-header">
+    <button class="back-btn" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+    <h1>段落大意之凝聚</h1>
+  </div>
+  <div class="rs-body">
+    <div id="output" class="output empty">等待分析结果…</div>
+    <div class="rs-actions">
+      <button class="rs-btn secondary" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>返回首页</button>
+      <button class="rs-btn secondary" onclick="goWork(currentMode)"><svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>继续分析</button>
+      <button class="rs-btn primary" onclick="copyResult()"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>复制结果</button>
+    </div>
+  </div>
+</div>
+<div id="loading" class="loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p id="loadingText">AI 正在分析，请稍候…</p>
+    <p class="tip" id="loadingTip">首次分析可能需要 10-30 秒</p>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+const API=location.origin;let currentMode='text',selectedFile=null,selectedImage=null;
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){showPage('homePage');resetState()}
+function goWork(mode){showPage('workPage');switchMode(mode)}
+function goResult(text){showLoading(false);const o=document.getElementById('output');o.innerHTML=renderMD(text);o.classList.remove('empty');showPage('resultPage')}
+
+function renderMD(t){
+  return t
+    .replace(/## (.+)/g,'<h2 style="font-size:18px;font-weight:700;color:#1e293b;margin:20px 0 10px;padding-bottom:8px;border-bottom:2px solid #e2e8f0">$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#0f172a">$1</strong>')
+    .replace(/^(\d+)\. (.+)/gm,'<div style="margin:8px 0;padding:10px 12px;background:#f8fafc;border-left:3px solid var(--b);border-radius:0 8px 8px 0"><strong style="color:var(--b)">$1.</strong> $2</div>')
+    .replace(/注意：(.+)/g,'<div style="margin:10px 0;padding:10px 14px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:14px">⚠️ $1</div>')
+    .replace(/\n\n/g,'<br>')
+    .replace(/\n/g,'<br>');
+}
+
+function resetState(){selectedFile=selectedImage=null;document.getElementById('textInput').value='';document.getElementById('extraInput').value='';document.getElementById('fileInput').value='';document.getElementById('imageInput').value='';resetUpload('file');resetUpload('image');updateCharCount()}
+function switchMode(mode){currentMode=mode;document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('on',t.dataset.mode===mode));document.getElementById('textPanel').style.display=mode==='text'?'block':'none';document.getElementById('filePanel').style.display=mode==='file'?'block':'none';document.getElementById('imagePanel').style.display=mode==='image'?'block':'none'}
+function onFileSelect(input){if(input.files.length){selectedFile=input.files[0];const d=document.getElementById('fileDrop');d.classList.add('done');d.classList.remove('error');document.getElementById('fileHint').textContent='已选择：';const f=document.getElementById('fileName');f.textContent=selectedFile.name+' ('+formatSize(selectedFile.size)+')';f.style.display='block'}}
+function onImageSelect(input){if(input.files.length){selectedImage=input.files[0];const d=document.getElementById('imageDrop');d.classList.add('done');d.classList.remove('error');document.getElementById('imageHint').textContent='已选择：';const f=document.getElementById('imageFileName');f.textContent=selectedImage.name+' ('+formatSize(selectedImage.size)+')';f.style.display='block'}}
+function resetUpload(type){const d=document.getElementById(type+'Drop');d.classList.remove('done','error');document.getElementById(type+'Hint').textContent=type==='file'?'点击或拖拽文件上传':'点击或拖拽图片上传';document.getElementById(type==='file'?'fileName':'imageFileName').style.display='none'}
+['fileDrop','imageDrop'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('dragover')});el.addEventListener('dragleave',()=>el.classList.remove('dragover'));el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('dragover');if(e.dataTransfer.files.length){if(id==='fileDrop'){selectedFile=e.dataTransfer.files[0];onFileSelect({files:[selectedFile]})}else{selectedImage=e.dataTransfer.files[0];onImageSelect({files:[selectedImage]})}}})});
+async function doSubmit(){const extra=document.getElementById('extraInput').value.trim(),text=document.getElementById('textInput').value.trim();if(currentMode==='text'&&!text&&!extra){toast('请输入文本内容',true);return}if(currentMode==='file'&&!selectedFile&&!extra){toast('请选择文件',true);return}if(currentMode==='image'&&!selectedImage&&!extra){toast('请选择图片',true);return}showLoading(true);document.getElementById('sendBtn').disabled=true;try{let result;if(currentMode==='file'&&selectedFile){setLoadingTip('正在提取文件内容并分析…');const form=new FormData();form.append('file',selectedFile);if(extra)form.append('text',extra);result=await apiCall('/api/summarize-file',{method:'POST',body:form})}else if(currentMode==='image'&&selectedImage){setLoadingTip('正在识别图片内容…');const form=new FormData();const img=await compressImage(selectedImage,1920,.85);form.append('image',img);if(extra)form.append('text',extra);result=await apiCall('/api/summarize-image',{method:'POST',body:form})}else{result=await apiCall('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text+(extra?'\n\n补充说明：'+extra:'')})})}goResult(result)}catch(err){showLoading(false);toast('请求失败: '+err.message,true)}finally{document.getElementById('sendBtn').disabled=false}}
+async function apiCall(path,opts){const resp=await fetch(API+path,opts);if(!resp.ok){const data=await resp.json().catch(()=>({}));throw new Error(data.error||'HTTP '+resp.status)}const data=await resp.json();return data.result||'无结果'}
+async function compressImage(file,maxWidth,quality){if(file.size<500*1024)return file;return new Promise(resolve=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,maxWidth/img.width),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(url);resolve(b||file)},file.type||'image/jpeg',quality)};img.onerror=()=>{URL.revokeObjectURL(url);resolve(file)};img.src=url})}
+function showLoading(s){document.getElementById('loading').classList.toggle('show',s);if(s){document.getElementById('loadingText').textContent='AI 正在分析，请稍候…';setLoadingTip('首次分析可能需要 10-30 秒')}}
+function setLoadingTip(t){document.getElementById('loadingTip').textContent=t}
+function toast(msg,isError){const t=document.getElementById('toast');t.textContent=msg;t.classList.toggle('error',!!isError);t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+function copyResult(){const text=document.getElementById('output').textContent;navigator.clipboard.writeText(text).then(()=>toast('已复制到剪贴板')).catch(()=>{const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);toast('已复制到剪贴板')})}
+function formatSize(b){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB'}
+function updateCharCount(){const l=document.getElementById('textInput').value.length;document.getElementById('charCount').textContent=l.toLocaleString()+' 字'}
+</script>
+<div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#999;"><a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow" style="color:#999;text-decoration:none;">京ICP备2026013960号-2</a>  <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11011502039754" rel="noreferrer" target="_blank" style="color:#999;text-decoration:none;">京公网安备11011502039754号</a></div>
+</body>
+</html>
