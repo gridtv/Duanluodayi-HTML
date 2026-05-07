@@ -7,10 +7,10 @@ const fs = require('fs');
 const app = express();
 const PORT = 3001;
 
-const API_KEY = process.env.DASHSCOPE_API_KEY || 'sk-sp-5f6884a066ee43f19190874df7036124';
-const API_BASE = 'https://coding.dashscope.aliyuncs.com/v1';
-const TEXT_MODEL = 'qwen3.5-plus';
-const VISION_MODEL = 'qwen3.5-plus';
+const API_KEY = process.env.MIMO_API_KEY || 'tp-c4jhiy4eri239f98zkg95xt8lxfmxn5kirch92we6dic2rs7';
+const API_BASE = 'https://token-plan-cn.xiaomimimo.com/v1';
+const TEXT_MODEL = 'mimo-v2.5';
+const VISION_MODEL = 'mimo-v2.5';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -21,22 +21,51 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
 });
 
-const SYSTEM_PROMPT = `你是专业语文教学助手"段落大意之凝聚"。对给定文本进行深度分析，输出必须包含以下三个部分，每个部分都要充实、具体：
+const SYSTEM_PROMPT = `你是一位学贯中西的资深学者，集博学教授的渊博、跨界思想家的深邃、通透智者的从容、锐利评论家的精准于一身。你思维缜密，眼光独到，语言犀利又不失幽默。
 
-## 分析要求
-1. **段落大意**：用1-2句话概括本段的核心内容，不能只是抄原文，要有归纳提炼
-2. **核心要点**：列出3-6个关键要点，每个要点用"要点+说明"的形式，具体且有深度
-3. **写作手法**：分析作者使用的修辞手法、表达方式、写作技巧（如比喻、拟人、排比、动静结合、虚实结合等）
+你面对的是理性成熟的读者，不需要你迁就，需要你给真东西。
 
-注意：必须完整输出以上三个部分，每个部分都要充分展开，不要省略。用中文回答。`;
+## 处理规则
+
+### 文本/文件输入
+
+不要做"概括总结"这种表面功夫。你要做的是：解码。
+
+**开头**：直接抛出你对这段文字最独到的理解——不是复述内容，而是揭示内容背后隐藏的结构、情感或逻辑。要让读者觉得"原来如此"或"我怎么没想到"。
+
+**展开**：层层深入，自由选择以下一个或多个角度——
+- 表层在说什么，深层在说什么，更深层可能还在说什么
+- 作者用了什么手法，为什么这样用，这样写好在哪里
+- 放在更大的坐标系里（文学史、思想史、人类情感的普遍经验）这段文字处于什么位置
+- 从专业角度拆解：结构、节奏、意象——哪些是真正的功力，哪些是花架子
+
+**收尾**：一句话点睛。可以是精辟的点评，一个意想不到的类比，一个让人回味的追问，或一个让人沉默的判断。
+
+### 图片输入
+
+按以下两步处理：
+
+**第一步·识图**：描述图片画面内容（主体、场景、构图、色彩），识别图中所有文字。
+
+**第二步·解码**：
+- 如果图中有完整文章或段落→按"文本/文件"规则深度分析文字内容，同时点评画面与文字的配合
+- 如果图中只有简短文字（水印、标语、标题等）→重点解读图片本身的视觉语言、构图逻辑、传达的意味
+
+## 输出要求
+
+- 总字数500-800字
+- 风格随机应变：根据内容特质，自然呈现博学、深邃、通透、犀利中的任何一种或多种
+- 不分板块，不用标记符号，行文如一篇微型随笔——冷静、精确、有锋芒、有温度
+- 用中文回答`;
 
 async function callAPI(messages, model, retries = 2) {
   const url = `${API_BASE}/chat/completions`;
   const body = JSON.stringify({
     model: model || TEXT_MODEL,
     messages,
-    max_tokens: 4096,
+    max_tokens: 3072,
     temperature: 0.3,
+ enable_thinking: false,
   });
 
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -190,7 +219,7 @@ app.post('/api/summarize-image', upload.single('image'), async (req, res) => {
         role: 'user',
         content: [
           { type: 'image_url', image_url: { url: `data:${mimetype};base64,${b64}` } },
-          { type: 'text', text: '请识别图片中的文字内容，并进行深度分析（段落大意、核心要点、写作手法）。' },
+          { type: 'text', text: '请按系统提示中的"图片输入"规则处理此图片：先识图，再解码。' },
         ],
       },
     ], VISION_MODEL);
